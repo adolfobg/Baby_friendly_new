@@ -1,47 +1,35 @@
-import React, { useContext, useState, useEffect} from "react";
-import imagen from "../../img/mapa.jpeg";
+import React, { useState, useEffect } from "react";
+import imagen from "../../img/local1.jpeg";
 import OpinionComments from "../component/opinionComments";
 import { useParams } from "react-router-dom";
-import { Context } from "../store/appContext";
 
 
-const LocalDetail = (props) => {
-  const params = useParams();
-  const [local, setLocales] = useState({});
-  const { store, actions } = useContext(Context);
+const LocalDetail = () => {
+  const params = useParams()
+  const [local, setLocales] = useState({})
 
-  useEffect(() => {
+  useEffect (()=> {
     fetch(`${process.env.BACKEND_URL}/api/comercial-place/${params.id}`)
-      .then((response) => {
-        return response.json();
-      })
-      .then((response) => {
-        setLocales(response);
-      });
-  }, []);
+    .then(response => {
+        return response.json()
+    }).then(response => {
+        setLocales(response)        
+    })
+}, [])
 
   return (
     <div className="container fluid">
       <div className="row">
-        <div className="col-10">{local ? <h1>{local.name}</h1> : ""}</div>
+        <div className="col-10">
+          {
+            local ?
+          <h1>{local.name}</h1>
+          : ""}
+        </div>
         <div className="col-1">
-          <button 
-            id="iconbutton"
-            onClick={()=>{
-              store.favorites.includes(props.id)
-              ? actions.deleteFavourites(props.id)
-              : actions.addFavourites(props.id)
-              }
-              }>
-              <i 
-              className=
-              {
-              store.favorites.includes(props.id)
-              ?"fas fa-heart-o"
-              :"fas fa-heart"
-              }
-              ></i>
-          </button>
+          <a href="">
+            <i className="fas fa-heart" id="iconbutton"></i>
+          </a>
         </div>
         <div className="col-1">
           <a href="">
@@ -61,23 +49,12 @@ const LocalDetail = (props) => {
           <p>297 Opiniones</p>
         </div>
         <div className="col-6">
-          <p>
-            <i class="fas fa-map-marker-alt"></i> {local.address} -
-            <i class="fas fa-laptop"></i> {local.url} -
-            <i class="fas fa-phone"></i> {local.telf} -
-            <i class="fas fa-envelope"></i> {local.email}
-          </p>
+          <p>{local.address} - {local.url} - {local.telf} - {local.email}</p>
         </div>
       </div>
       <div className="row">
-        <div className="mobile_flex_container full_width">
-          <img
-            src="https://pbs.twimg.com/media/Fie7-X6WAAALgul.jpg"
-            className="imagenDetalle"
-            width="1100px"
-            height="900px"
-            alt=""
-          />
+        <div className="mobile_flex_container  full_width">
+          <img src={imagen} className="card-img-top" alt="" />
           <div className="see_all_count_wrap" onclick="">
             <span className="see_all_count">
               <span className="ui_icon camera"></span>
@@ -86,7 +63,9 @@ const LocalDetail = (props) => {
           </div>
         </div>
         <div className="descripcion" id="descripcion">
-          <p>{local.description}</p>
+          <p>
+          {local.description}
+          </p>
         </div>
       </div>
       <div className="row" id="rating">
@@ -94,37 +73,34 @@ const LocalDetail = (props) => {
           <div className="form-check">
             <input
               className="form-check-input"
-              type="checkbox"
+              type="radio"
               name="flexRadioDefault"
               id="flexRadioDefault1"
-              value={local.trona}
             />
             <label className="form-check-label" for="flexRadioDefault1">
-              Trona
+            {local.trona}
             </label>
           </div>
           <div className="form-check">
             <input
               className="form-check-input"
-              type="checkbox"
+              type="radio"
               name="flexRadioDefault"
               id="flexRadioDefault1"
-              value={local.cambiador}
             />
             <label className="form-check-label" for="flexRadioDefault1">
-              Cambiador
+            {local.cambiador}
             </label>
           </div>
           <div className="form-check">
             <input
               className="form-check-input"
-              type="checkbox"
+              type="radio"
               name="flexRadioDefault"
               id="flexRadioDefault1"
-              value={local.accesible}
             />
             <label className="form-check-label" for="flexRadioDefault1">
-              Accesible con carrito
+            {local.accessible} con carrito
             </label>
           </div>
         </div>
@@ -132,37 +108,35 @@ const LocalDetail = (props) => {
           <div className="form-check">
             <input
               className="form-check-input"
-              type="checkbox"
+              type="radio"
               name="flexRadioDefault"
               id="flexRadioDefault1"
-              value={local.espacio_carrito}
             />
             <label className="form-check-label" for="flexRadioDefault1">
-              Espacio Carrito
+            {local.espacio_carrito} 
             </label>
           </div>
           <div className="form-check">
             <input
               className="form-check-input"
-              type="checkbox"
+              type="radio"
               name="flexRadioDefault"
               id="flexRadioDefault1"
               value={local.ascensor}
             />
             <label className="form-check-label" for="flexRadioDefault1">
-              Ascensor
+            ascensor
             </label>
           </div>
           <div className="form-check">
             <input
               className="form-check-input"
-              type="checkbox"
+              type="radio"
               name="flexRadioDefault"
               id="flexRadioDefault1"
-              value={local.productos_higiene}
             />
             <label className="form-check-label" for="flexRadioDefault1">
-              Productos higiene
+            {local.productos_higiene} 
             </label>
           </div>
         </div>
@@ -170,47 +144,27 @@ const LocalDetail = (props) => {
       <div className="row" id="ubicacion">
         <h2>Ubicación y contacto</h2>
         <div>
-          <img
-            src={imagen}
-            className="imagenmapa"
-            alt=""
-            width="1100px"
-            height="900px"
-          />
+          <img src={imagen} className="card-img-top" alt="" />
         </div>
-        <div className="" id="ubicacionelements">
+        <div className="">
+          <span className=""></span>
           <span>
             <a href="https://maps.google.com/maps?saddr=&amp;daddr=Calle+Bah%C3%ADa+de+Palma%2C+4B%2C+28042+Madrid+Espa%C3%B1a@40.46229,-3.591468">
               <span className="">
-                <i class="fas fa-map-marker-alt"></i> {local.address}
+              {local.location} 
               </span>
               <span className=""></span>
             </a>
           </span>
         </div>
-        <div className="" id="ubicacionelements">
+        <div className="">
           <span className="">
-            <i class="fas fa-car-building"></i> A 0,4 km del Aeropuerto
-          </span>
-        </div>
-        <div className="" id="ubicacionelements">
-          <span className="">
-            <i class="fas fa-laptop"></i> {local.url}
-          </span>
-        </div>
-        <div className="" id="ubicacionelements">
-          <span className="">
-            <i class="fas fa-phone"></i> {local.telf}
-          </span>
-        </div>
-        <div className="" id="ubicacionelements">
-          <span className="">
-            <i class="fas fa-envelope"></i> {local.email}
+            <div>{local.location} </div>
           </span>
         </div>
       </div>
       <div className="row" id="rating">
-        <h2 id="descripcion">Lee lo que otros usuarios opinan</h2>
+        <h2>Lee lo que otros usuarios opinan</h2>
         <OpinionComments />
         <OpinionComments />
       </div>
@@ -219,6 +173,7 @@ const LocalDetail = (props) => {
           Escribe tu opinión
         </button>
       </div>
+      
     </div>
   );
 };
