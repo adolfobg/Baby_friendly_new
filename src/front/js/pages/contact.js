@@ -8,19 +8,20 @@ export const Contact = (props) => {
   const { store, actions } = useContext(Context);
   const params = useParams();
     return (
-    <div className="container mx-auto">
+    <div className="container mx-auto" >
       <div className="form-body">
         <div className="row">
           <div className="form-holder">
-            <div className="form-content">
+            <div className="form-content ">
               <div className="form-items">
-                 <h3>Contacto</h3>
-                 <p>¿Necesitas ayuda?</p>
-                 <p>Ponte en contacto con nosotros</p>
-                 <h3 id="iconbutton">Escríbenos</h3>
+                 <h3 className="text-center">Contacto</h3>
+                 <p className="text-center mb-0">¿Necesitas ayuda?</p>
+                 <p className="text-center mt-0">Ponte en contacto con nosotros</p>
+                <div className="card col-xs-4 col-sm-4 col-md-4 col-lg-6 col-xl-6" id="card">
                 <form className="requires-validation" novalidate>
-                  <div className="col-md-12">
-                    <label for="basic-url" className="form-label">Nombre y Apellidos</label>
+                <h3 className="text-center mt-3" id="iconbutton">Escríbenos</h3>
+                  <div className="col ms-3 me-3">
+                    <label for="basic-url" className="form-label mt-0 mb-0">Nombre y Apellidos</label>
                     <input
                     className="form-control"
                     type="text"
@@ -34,8 +35,8 @@ export const Contact = (props) => {
                     Campo nombre y apellidos no puede estar en blanco.
                   </div>
                   </div>
-                  <div className="col-md-12">
-                    <label for="basic-url" className="form-label">Email</label>
+                  <div className="col ms-3 me-3">
+                    <label for="basic-url" className="form-label mt-3 mb-0">Email</label>
                     <input
                     className="form-control"
                     type="email"
@@ -47,8 +48,8 @@ export const Contact = (props) => {
                     Campo Email no puede estar en blanco.
                     </div>
                   </div>
-                  <div className="col-md-12">
-                    <label for="basic-url" className="form-label">Teléfono</label>
+                  <div className="col ms-3 me-3">
+                    <label for="basic-url" className="form-label mt-3 mb-0">Teléfono</label>
                     <input
                     className="form-control"
                     type="telefono"
@@ -60,9 +61,9 @@ export const Contact = (props) => {
                     Campo Teléfono no puede estar en blanco
                     </div>
                   </div>
-                  <div className="col-md-12">
-                    <label for="basic-url" className="form-label">Tema de consulta</label>
-                    <select className="form-select mt-3" required>
+                  <div className="col ms-3 me-3">
+                    <label for="basic-url" className="form-label mt-3 mb-0">Tema de consulta</label>
+                    <select className="form-select mt-0" required>
                       <option selected disabled value="">Hacerme Gestor </option>
                       <option value="jweb">Información sobre Baby Friendly</option>
                       <option value="sweb">Claves de acceso</option>
@@ -74,8 +75,8 @@ export const Contact = (props) => {
                     Por favor, selecciona un asunto.
                     </div>
                     </div>
-                  <div className="col-md-12">
-                    <label for="basic-url" className="form-label">Comentarios</label>
+                  <div className="col ms-3 me-3">
+                    <label for="basic-url" className="form-label mt-3 mb-0">Comentarios</label>
                     <input id="commentinput"
                     className="form-control"
                     type="text"
@@ -88,7 +89,7 @@ export const Contact = (props) => {
                     Campo Comentarios no puede estar en blanco
                     </div>
                   </div>
-                  <div className="form-check">
+                  <div className="form-check col mt-3 ms-3 me-3">
                     <input
                     className="form-check-input"
                     type="checkbox"
@@ -101,12 +102,13 @@ export const Contact = (props) => {
                     Por favor, confirma que has leido y aceptas la Política de Privacidad y Aviso Legal.
                     </div>
                   </div>
-                  <div className="form-button mt-3">
+                  <div className="form-button mt-3 ms-3 me-3 mb-3">
                     <button id="button" type="submit" className="btn btn-primary">
                     Enviar
                     </button>
                   </div>
                 </form>
+                </div>
               </div>
             </div>
           </div>
