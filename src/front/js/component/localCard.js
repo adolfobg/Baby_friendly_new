@@ -1,52 +1,27 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
-import { useParams } from "react-router-dom";
+import imagen from "../../img/local1.jpeg";
 
 
 const LocalCard = (props) => {
   const { store, actions } = useContext(Context);
-  const params = useParams();
-  const [local, setLocales] = useState({});
-
-  useEffect(() => {
-    fetch(`${process.env.BACKEND_URL}/api/comercial-place/${params.id}`)
-      .then((response) => {
-        return response.json();
-      })
-      .then((response) => {
-        setLocales(response);
-      });
-  }, []);
+  console.log(store.favorites);
 
   return (
     <div className="col-12">
       <div className="card" id="localcard">
           <img
-              src="https://pbs.twimg.com/media/Fie7-X6WAAALgul.jpg"
+              src={imagen}
               className="card-img-top"
               alt=""
            />
         <div className="card-body">
           <h5 className="card-title">{props.name}</h5>
-          <button 
-                    id="iconbutton"
-                    onClick={()=>{
-                        store.favorites.includes(props.id)
-                        ? actions.deleteFavourites(props.id)
-                        : actions.addFavourites(props.id)
-                    }
-                    }>
-                    <i 
-                    className=
-                    {
-                        store.favorites.includes(props.id)
-                        ?"fas fa-heart-o"
-                        :"fas fa-heart"
-                    }
-
-                    ></i>
-                    </button>
+          <p className="card-text">{props.date}</p>
+          <button className="btn btn-outline-success" type="submit" id="iconbutton">
+            <i className="fas fa-heart" />
+          </button>
           <button className="btn btn-outline-success" type="submit" id="iconbutton">
           <i className="far fa-comment" />
           </button>
