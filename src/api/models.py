@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+import enum
 
 db = SQLAlchemy()
 
@@ -9,7 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     type = db.Column(db.Enum("customer","manager", name='type_types'), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=False)
 
     def __repr__(self):
         return f'<User {self.email}>'
@@ -25,11 +26,12 @@ class Customer(db.Model):
     __tablename__ = "customers"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.ForeignKey("users.id"), nullable=False)
-    user = db.Column(db.ForeignKey("users.id"), nullable=False)
+    user = db.relationship(User, backref="customer")
+    # user = db.Column(db.ForeignKey("users.id"), nullable=False)
     name = db.Column(db.String(80), unique=False, nullable=False)
     birthday = db.Column(db.Date(), unique=False, nullable=True)
     gender = db.Column(db.Enum("female","male", name='gender_types'), unique=False, nullable=True)
-    subscription = db.Column(db.Boolean(), unique=False, nullable=True)
+    subscription = db.Column(db.Boolean(), unique=False, nullable=True, default=False)
     address = db.Column(db.String(150), unique=False, nullable=True)
 
     def __repr__(self):
@@ -50,7 +52,8 @@ class Manager(db.Model):
     __tablename__ = "managers"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.ForeignKey("users.id"), nullable=False)
-    user = db.Column(db.ForeignKey("users.id"), nullable=False)
+    user = db.relationship(User, backref="manager")
+    #user = db.Column(db.ForeignKey("users.id"), nullable=False)
     name = db.Column(db.String(80), unique=False, nullable=False)
 
     def __repr__(self):
@@ -67,17 +70,21 @@ class Comercial_Place(db.Model):
     __tablename__ = "comercial_places"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.ForeignKey("users.id"), nullable=False)
-    user = db.Column(db.ForeignKey("users.id"), nullable=False)
+    user = db.relationship(User, backref="comercial_place")
     name = db.Column(db.String(80), unique=False, nullable=False)
     address = db.Column(db.String(150), unique=False, nullable=False)
     url = db.Column(db.String(150), unique=False, nullable=True)
+    image_url = db.Column(db.String(250), unique=False, nullable=True)
     telf = db.Column(db.String(15), unique=False, nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=True)
     location = db.Column(db.String(120), unique=True, nullable=True)
-    description = db.Column(db.String(120), unique=True, nullable=False)
-    cambiador = db.Column(db.Boolean(), unique=False, nullable=False)
-    trono = db.Column(db.Boolean(), unique=False, nullable=False)
-    childs = db.Column(db.Boolean(), unique=False, nullable=False)
+    description = db.Column(db.String(700), unique=True, nullable=False)
+    cambiador = db.Column(db.Boolean(), unique=False, default=False)
+    trona = db.Column(db.Boolean(), unique=False, default=False)
+    accessible_carrito = db.Column(db.Boolean(), unique=False, default=False)
+    espacio_carrito = db.Column(db.Boolean(), unique=False, default=False)
+    ascensor = db.Column(db.Boolean(), unique=False, default=False)
+    productos_higiene = db.Column(db.Boolean(), unique=False, default=False)
 
     def __repr__(self):
         return f'<User {self.name}>'
@@ -85,17 +92,20 @@ class Comercial_Place(db.Model):
     def serialize(self):
         return {    "id": self.id,
                     "user_id": self.user_id,
-                    "user_name": self.user.name,
                     "name": self.name,
                     "address": self.address,
                     "url": self.url,
+                    "image_url": self.image_url,
                     "telf": self.telf,
                     "email": self.email,
                     "location": self.location,
                     "description": self.description,
                     "cambiador": self.cambiador,
-                    "trono": self.trono,
-                    "childs": self.childs
+                    "trona": self.trona,
+                    "accessible": self.accessible_carrito,
+                    "espacio_carrito": self.espacio_carrito,
+                    "ascensor": self.ascensor,
+                    "productos_higiene": self.productos_higiene,
                }
 
 class Rate_Customer(db.Model):
@@ -136,6 +146,13 @@ class Photo_Comercial_Place(db.Model):
                     "location": self.location
                }
 
+class Puntuaciones(enum.Enum):
+    uno="1"
+    dos="2"
+    tres="3"
+    cuatro="4"
+    cinco="5"
+
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
@@ -143,9 +160,15 @@ class Comment(db.Model):
     user = db.relationship('User', backref='comments', lazy=True)
     comercial_place_id = db.Column(db.ForeignKey("comercial_places.id"), nullable=False)
     comercial_place = db.relationship('Comercial_Place', backref='comments', lazy=True)
-    comment_id = db.Column(db.ForeignKey("comments.id"), nullable=False)
-    date = db.Column(db.DateTime(), unique=False, nullable=False)
+    comment_id = db.Column(db.ForeignKey("comments.id"), nullable=True)
+    date = db.Column(db.DateTime(), unique=False, nullable=False,default=datetime.datetime.now())
     comment = db.Column(db.String(1000), unique=False, nullable=False)
+    puntuacion = db.Column(db.Enum(Puntuaciones), unique=False, nullable=True)
+    price = db.Column(db.Enum("Barato","Normal", "Caro", name='price_types'), unique=False, nullable=True)
+    a_domicilio = db.Column(db.Enum("Si","No", name='a_domicilio_types'), unique=False, nullable=True)
+    mesa = db.Column(db.Enum("Si","No", name='mesa_types'), unique=False, nullable=True)
+    alcohol = db.Column(db.Enum("Si","No", name='alcohol_types'), unique=False, nullable=True)
+    visita = db.Column(db.Enum("Pareja","Familia","Solo","Amigos","Negocios", name='visita_types'), unique=False, nullable=True)
     
     def __repr__(self):
         return f'<User {self.customer_id}>'
@@ -158,7 +181,12 @@ class Comment(db.Model):
                     "comercial_Place_name": self.comercial_Place.name,
                     "comment_id": self.comment_id,
                     "date": self.date,
-                    "comment": self.comment
+                    "puntuacion": self.puntuacion,
+                    "price": self.price,
+                    "a_domicilio": self.a_domicilio,
+                    "mesa": self.mesa,
+                    "alcohol": self.alcohol,
+                    "visita": self.visita
                }
 
 class Photos_Comments(db.Model):

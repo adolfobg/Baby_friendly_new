@@ -59,21 +59,22 @@ It is recomended to install the backend first, make sure you have Python 3.8, Pi
 | --------- | --------------------------------------------------- |
 | SQLite    | sqlite:////test.db                                  |
 | MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
+| Postgress | postgres://username:password@localhost:5432/example | 
 
 3.1                    `$ pip install flask-jwt-extended`
 4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
 5. Run the migrations: `$ pipenv run upgrade`
 6. Run the application: `$ pipenv run start`
-
-### Backend Populate Table Users
+ 
+### Backend Populate Table Users 
 
 To insert test users in the database execute the following command:
 
 ```sh
 $ flask insert-test-users 5
+$ flask insert-test-inicial   para crear pruebas
 ```
-
+ 
 And you will see the following message:
 
 ```

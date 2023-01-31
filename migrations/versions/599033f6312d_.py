@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e7d76cb114ad
+Revision ID: 599033f6312d
 Revises: 
-Create Date: 2023-01-18 18:06:27.900282
+Create Date: 2023-01-30 18:10:20.981828
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e7d76cb114ad'
+revision = '599033f6312d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,18 +30,20 @@ def upgrade():
     op.create_table('comercial_places',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('user', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=80), nullable=False),
     sa.Column('address', sa.String(length=150), nullable=False),
     sa.Column('url', sa.String(length=150), nullable=True),
+    sa.Column('image_url', sa.String(length=250), nullable=True),
     sa.Column('telf', sa.String(length=15), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('location', sa.String(length=120), nullable=True),
-    sa.Column('description', sa.String(length=120), nullable=False),
-    sa.Column('cambiador', sa.Boolean(), nullable=False),
-    sa.Column('trono', sa.Boolean(), nullable=False),
-    sa.Column('childs', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['user'], ['users.id'], ),
+    sa.Column('description', sa.String(length=700), nullable=False),
+    sa.Column('cambiador', sa.Boolean(), nullable=True),
+    sa.Column('trona', sa.Boolean(), nullable=True),
+    sa.Column('accessible_carrito', sa.Boolean(), nullable=True),
+    sa.Column('espacio_carrito', sa.Boolean(), nullable=True),
+    sa.Column('ascensor', sa.Boolean(), nullable=True),
+    sa.Column('productos_higiene', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('description'),
@@ -51,22 +53,18 @@ def upgrade():
     op.create_table('customers',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('user', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=80), nullable=False),
     sa.Column('birthday', sa.Date(), nullable=True),
     sa.Column('gender', sa.Enum('female', 'male', name='gender_types'), nullable=True),
     sa.Column('subscription', sa.Boolean(), nullable=True),
     sa.Column('address', sa.String(length=150), nullable=True),
-    sa.ForeignKeyConstraint(['user'], ['users.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('managers',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('user', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=80), nullable=False),
-    sa.ForeignKeyConstraint(['user'], ['users.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -74,9 +72,15 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('comercial_place_id', sa.Integer(), nullable=False),
-    sa.Column('comment_id', sa.Integer(), nullable=False),
+    sa.Column('comment_id', sa.Integer(), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('comment', sa.String(length=1000), nullable=False),
+    sa.Column('puntuacion', sa.Enum('uno', 'dos', 'tres', 'cuatro', 'cinco', name='puntuaciones'), nullable=True),
+    sa.Column('price', sa.Enum('Barato', 'Normal', 'Caro', name='price_types'), nullable=True),
+    sa.Column('a_domicilio', sa.Enum('Si', 'No', name='a_domicilio_types'), nullable=True),
+    sa.Column('mesa', sa.Enum('Si', 'No', name='mesa_types'), nullable=True),
+    sa.Column('alcohol', sa.Enum('Si', 'No', name='alcohol_types'), nullable=True),
+    sa.Column('visita', sa.Enum('Pareja', 'Familia', 'Solo', 'Amigos', 'Negocios', name='visita_types'), nullable=True),
     sa.ForeignKeyConstraint(['comercial_place_id'], ['comercial_places.id'], ),
     sa.ForeignKeyConstraint(['comment_id'], ['comments.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),

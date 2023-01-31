@@ -1,6 +1,7 @@
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
+      usertype: null,
       token: null,
       message: null,
       demo: [
@@ -24,11 +25,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       syncTokenFromSessionStore: () => {
         const token = sessionStorage.getItem("token");
+        const usertype = sessionStorage.getItem("usertype");
         console.log(
           "Application just loaded, synching the session storage token"
         );
         if (token && token != "" && token != undefined)
           setStore({ token: token });
+          setStore({ usertype: usertype });
       },
 
       logout: () => {
@@ -51,7 +54,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         try {
           const resp = await fetch(
-            "https://3001-adolfobg-babyfriendlyne-raelxgo90g2.ws-eu82.gitpod.io/api/token",
+            process.env.BACKEND_URL + "/api/token",
             opts
           );
           if (resp.status !== 200) {
@@ -61,8 +64,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           const data = await resp.json();
           console.log("this came form the backend", data);
-          sessionStorage.setItem("token", data.access_token);
-          setStore({ token: data.access_token });
+          sessionStorage.setItem("token", data.token);
+          setStore({ token: data.token });
+          sessionStorage.setItem("usertype", data.usertype);
+          setStore({ usertype: data.usertype });
           return true;
         } catch (error) {
           console.error("There has been an error login in");
@@ -91,6 +96,10 @@ const getState = ({ getStore, getActions, setStore }) => {
           if (i === index) elm.background = color;
           return elm;
         });
+        //we have to loop the entire demo array to look for the respective index
+        //and change its color
+
+        //reset the global store
 
         //reset the global store
         setStore({ demo: demo });
