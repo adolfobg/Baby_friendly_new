@@ -2,13 +2,17 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { useParams } from "react-router-dom";
-
+import CustomModal from "../component/customModal";
+import { useModal } from "../hooks/UseModal";
 
 const LocalCard = (props) => {
   const { store, actions } = useContext(Context);
   const [comentarios, setComentarios] = useState();
+  const [message, setMessage] = useState();
   const params = useParams();
-  const [local, setLocales] = useState({}); 
+  const [local, setLocales] = useState({});
+  const [isModalOpened, setIsModalOpened, toggleModal] = useModal(false);
+
 
     const add_favourites = (id) => {
       if (sessionStorage.getItem("token")){
@@ -23,24 +27,33 @@ const LocalCard = (props) => {
         setLocales(response);
       });
       } else {
-        alert("message")
+        setMessage(true)
       }
     }
 
   return (
       <div className="card" id="localcard">
+        {message ? 
+        <CustomModal  show={isModalOpened}
+        titulo="Guardado en favoritos"
+        handleClose={() => setIsModalOpened(false)}>
+        <div>{message}</div>
+        </CustomModal> : ""
+        }
+        <a href = {`/localDetail/${props.id}`}>
         <img 
         src={props.image_url} 
         className="card-img-top"
         id="imagenlocal"
-        alt="" 
+        alt=""
         />
+        </a>
         <div className="card-body">
           <h6>
-            <Link to={`/localDetail/${props.id}`} className="card-title mb-1"><strong>{props.name}</strong></Link>
+            <Link to={`/localDetail/${props.id}`} className="card-title mb-1 linkfooter" id="cardtitle"><strong>{props.name}</strong></Link>
             <button id="iconbutton" onClick={()=>{add_favourites(props.id)}}> <i className="fas fa-heart"></i></button>
           </h6>
-            <div>
+            <div id="textoslegales">
             {Array.from(Array(5).keys()).map((e,i)=>{return props.puntuacion <= i ? 
             (<i className="far fa-star" key={i} id="iconbutton"/>)
             : 
@@ -49,7 +62,7 @@ const LocalCard = (props) => {
             }
             {comentarios ? comentarios.length : 0} Opiniones
             </div>
-            <p className="mt-1" id="localcardtext">Española, Contemporánea €€€</p>
+            <p className="mt-1" id="localcardtext">{props.description.substring(0,60)}...</p>
             <div className="mt-0">
             {/* <Link to="/opinionUser/:id_local/:id_comment">
               <button id="iconbutton"><i className="far fa-comment" /></button>

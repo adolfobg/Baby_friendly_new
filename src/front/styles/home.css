@@ -27,12 +27,20 @@ body {
   border: none;
   background-color: none;
 }
-#iconbutton2{
-  color: #FF9500;
+#iconsocial{
+  color: #5e2e2e;
   border: none;
   background-color: none;
-  align-items: left;
 }
+#iconbutton3{
+  color: #ff69de;
+  background-color: #ffccf4;
+  border: none;
+}
+#iconbutton4{
+  color: #ff69de;
+}
+
 #opinionbutton{
   border: none;
   background-color: #ffc6708a;
@@ -52,6 +60,7 @@ body {
   box-shadow: 10px;
   height: auto;
   margin-top: 5px;
+  width: 1050px;
 }
 #comentario{
   width: 300px;
@@ -144,6 +153,24 @@ body {
   font-size: small; 
   align-items: right; 
 }
+.imagenbanner{
+  width: 570px;
+  height: 200px;
+}
+
+.imagenDetalle{
+  width: 600px;
+  height: 342px;
+}
+.imagenDetallePeq{
+  width: 250px;
+  height: 171px;
+}
+.linkfooter{
+  text-decoration:none;
+}
+
+
 /* .section {
   position: relative;
   background-repeat: repeat-x;

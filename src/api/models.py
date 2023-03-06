@@ -32,6 +32,7 @@ class Customer(db.Model):
     user = db.relationship(User, backref="customer")
     # user = db.Column(db.ForeignKey("users.id"), nullable=False)
     name = db.Column(db.String(80), unique=False, nullable=False)
+    telefono = db.Column(db.String(9), unique=False, nullable=True)
     birthday = db.Column(db.Date(), unique=False, nullable=True)
     gender = db.Column(db.Enum("female","male", name='gender_types'), unique=False, nullable=True)
     subscription = db.Column(db.Boolean(), unique=False, nullable=True, default=False)
@@ -45,6 +46,7 @@ class Customer(db.Model):
                     "user_id": self.user_id,
                     "user_email": self.user.email,
                     "name": self.name,
+                    "telefono": self.telefono,
                     "birthday": self.birthday,
                     "gender": self.gender,
                     "subscription": self.subscription,
@@ -80,8 +82,8 @@ class Comercial_Place(db.Model):
     image_url = db.Column(db.String(250), unique=False, nullable=True)
     telf = db.Column(db.String(15), unique=False, nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=True)
-    location = db.Column(db.String(120), unique=True, nullable=True)
-    description = db.Column(db.String(700), unique=True, nullable=False)
+    location = db.Column(db.String(120), unique=False, nullable=True)
+    description = db.Column(db.String(700), unique=False, nullable=False)
     cambiador = db.Column(db.Boolean(), unique=False, default=False)
     trona = db.Column(db.Boolean(), unique=False, default=False)
     accessible_carrito = db.Column(db.Boolean(), unique=False, default=False)
@@ -167,8 +169,8 @@ class Photo_Comercial_Place(db.Model):
 
     def serialize(self):
         return {    "id": self.id,
-                    "comercial_Place_id": self.comercial_Place_id,
-                    "comercial_Place_name": self.comercial_Place.name,
+                    "comercial_Place_id": self.comercial_place_id,
+                    "comercial_Place_name": self.comercial_place.name,
                     "location": self.location
                }
 
