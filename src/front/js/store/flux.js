@@ -7,6 +7,9 @@ const getState = ({ getStore, getActions, setStore }) => {
       token: null,
       message: null,
       locales: null,
+      comentario: null,
+      comentarioFotos: null,
+      comentarioRespuesta: null,
     },
     actions: {
       // Use getActions to call a function within a fuction
@@ -33,6 +36,33 @@ const getState = ({ getStore, getActions, setStore }) => {
             };
 
           setStore({ locales: data});
+          return true;
+
+        }catch (error) {
+            console.error("No se han podido cargar datos", error);
+            return false;
+          }
+      },
+
+      // -------------------------------------------------------------------
+      // Carga lista de comentarios con un string de búsqueda para el nombre
+      // -------------------------------------------------------------------
+      cargaComentarios: async (buscar) => {
+        try{
+            const resp = await fetch(`${process.env.BACKEND_URL}/api/search/${buscar}`);
+
+            if (resp.status !== 200){ 
+                setStore({message: `No se han encontrado resultados para: "${buscar}"` });
+                return false;
+            }
+            const data = await resp.json();
+
+            if (data.length == 0){ 
+                  setStore({message: `No se han encontrado resultados para: "${buscar}"` });
+                  return false;
+            };
+
+          setStore({ comentario: data});
           return true;
 
         }catch (error) {
@@ -70,6 +100,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 
         sessionStorage.removeItem("email");
         setStore({ email: null });
+
+        setStore({ user: null });
+        setStore({ usuario: null });
       },
 
       // -------------------------------------------------------------------
@@ -128,6 +161,9 @@ const getState = ({ getStore, getActions, setStore }) => {
                                              },
                                      body: JSON.stringify(formData),
                                     });
+
+
+                                    
           if (resp.ok){
               setStore({ message: "Local creado correctamente" });
               return true;
@@ -145,6 +181,43 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       // -------------------------------------------------------------------
       // Almancena mensaje genérico
+      // -------------------------------------------------------------------
+      getComment: async (id) => {
+        try {
+          //---------- comentario ------------------------------------------------------
+          const resp = await fetch(process.env.BACKEND_URL + "/api/comment/"+ id,{
+            method: 'GET',
+            headers: {"Content-Type": "application/json",
+                  "Authorization": 'Bearer '+ sessionStorage.getItem("token") // hará falta?
+            } 
+          });
+          if (!(resp.ok)){
+              setStore({ message: await resp.json() });
+              return false;
+          }
+          setStore({ comentario: await resp.json()}); 
+
+          //---------- FOTOS comentario ------------------------------------------------------
+          const resp2 = await fetch(process.env.BACKEND_URL + "/api/photos_comment/" + id,{
+            method: 'GET',
+            headers: {"Content-Type": "application/json",
+                  "Authorization": 'Bearer '+ sessionStorage.getItem("token") // hará falta?
+            } 
+            })
+          if (!(resp2.ok)){
+            setStore({ message: await resp2.json() });
+            return false;
+          }
+          setStore({ comentarioFotos: await resp2.json()}); 
+
+        } catch (error) {
+          console.log("Error loading message from backend: ", error);
+          setStore({ message: "Error loading message from backend: "+ error });
+          return false;
+    }
+      },
+      // -------------------------------------------------------------------
+      // Datos de un comentario
       // -------------------------------------------------------------------
       getMessage: async () => {
         try {

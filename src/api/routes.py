@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Customer, Manager, Comment, Comercial_Place, Photos_Comments, Favourit, Rate_Customer
+from api.models import db, User, Customer, Manager, Comment, Comercial_Place, Photos_Comments, Favourit, Rate_Customer, Photo_Comercial_Place
 from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -12,13 +12,26 @@ from sqlalchemy.sql import func
 api = Blueprint('api', __name__)
 
 
+# ----------------------------------------------------------------------------
+# Listasdo de Customers
+# ----------------------------------------------------------------------------
 @api.route('/Customer', methods=['GET'])
 def list_customers():
     Customers = Customer.query.all()
     data = [Customer.serialize() for Customers in Customer]
     return jsonify(data), 200
 
+# ----------------------------------------------------------------------------
+# Un Customer
+# ----------------------------------------------------------------------------
+@api.route('/GetCustomer/<id>', methods=['GET'])
+def get_customer(id):
+    datos = Customer.query.filter_by(user_id=id).first()
+    return jsonify(datos.serialize()), 200
 
+# ----------------------------------------------------------------------------
+# Lsitado de Managers
+# ----------------------------------------------------------------------------
 @api.route('/Manager', methods=['GET'])
 def list_Managers():
     Managers = Manager.query.all()
@@ -39,8 +52,20 @@ def list_Comercial_Places():
 
     comercials = []
     for comercial in comercial_places:
-        q = db.session.query(Rate_Customer.comercial_place_id, Rate_Customer.rate, func.count('*').label('total_count')).filter_by(comercial_place_id=comercial.id).group_by(Rate_Customer.comercial_place_id,  Rate_Customer.rate).subquery()
-        result = db.session.query(Comercial_Place, q.c.total_count, q.c.rate).filter_by(id=comercial.id).outerjoin(q, Comercial_Place.id==q.c.comercial_place_id).all()
+        q = db.session.query(
+            Rate_Customer.comercial_place_id, 
+            Rate_Customer.rate, 
+            func.count(
+                '*').label(
+                'total_count')).filter_by(
+                comercial_place_id=comercial.id).group_by(
+                    Rate_Customer.comercial_place_id,  
+                    Rate_Customer.rate).subquery()
+        result = db.session.query(
+            Comercial_Place, q.c.total_count, q.c.rate).filter_by(
+                id=comercial.id).outerjoin(
+                    q, 
+                    Comercial_Place.id==q.c.comercial_place_id).all()
         total = 0
         count = 0
 
@@ -226,6 +251,15 @@ def Comercial_Places_2(comercial_place_id):
         return jsonify({"msg": "No existen datos"}), 402
 
 # ----------------------------------------------------------------------------
+# Fotos de Un Local
+# ----------------------------------------------------------------------------
+@api.route('/Photo_Comercial_Place/<id>', methods=['GET'])
+def get_photos_comercial_place(id):
+    fotos = Photo_Comercial_Place.query.filter_by(comercial_place_id = id).all()
+    datos = [una.serialize() for una in fotos]
+    return jsonify(datos), 200
+
+# ----------------------------------------------------------------------------
 # Comentarios de customers
 # ----------------------------------------------------------------------------
 @api.route('/comment', methods=['GET'])
@@ -235,9 +269,18 @@ def list_Comments():
     return jsonify(data), 200
 
 # ----------------------------------------------------------------------------
+# Búsqueda de comentarios
+# ----------------------------------------------------------------------------
+@api.route('/search/<search>', methods=['GET'])
+def list_search(search):
+    datos = Comment.query.filter_by(Comment.id.desc()).limit(4).all()
+    data = [comentario.serialize() for comentario in datos]
+    return jsonify(data), 200
+
+# ----------------------------------------------------------------------------
 # Un comentario
 # ----------------------------------------------------------------------------
-@api.route('/comment/<id>', methods=['GET'])
+@api.route('/comment/<int:id>', methods=['GET'])
 def get_comment(id):
     datos = Comment.query.get(id)
     return jsonify(datos.serialize()), 200
@@ -267,7 +310,7 @@ def respuesta(id):
 # ----------------------------------------------------------------------------
 @api.route('/comment_local/<id_local>', methods=['GET'])
 def get_comments_local(id_local):
-    #datos = Comment.query.filter_by(comercial_place_id = id_local).filter_by(puntuacion != 0).all()
+    #datos = Comment.query.filter_by(comercial_place_id = id_local).filter_by(puntuacion is null).all()
     datos = Comment.query.filter_by(comercial_place_id = id_local).all()
     data = [comentario.serialize() for comentario in datos]
     return jsonify(data), 200
@@ -361,7 +404,7 @@ def Comercial_Place_add():
             name            = request.json.get('name'),
             address         = request.json.get('address'),
             url             = request.json.get('url'),
-            image_url       = request.json.get('image_url'),
+            image_url       = request.json.get('image_url'), 
             telf            = request.json.get('telf'),
             email           = request.json.get('email'),
             location        = request.json.get('location'),
@@ -376,6 +419,23 @@ def Comercial_Place_add():
         )
         db.session.add(Place)
         db.session.commit()
+
+        print("-----------------------------------------------");
+        print(request.json.get('image_url1'));
+        print(request.json.get('image_url2'));
+        print("-----------------------------------------------");
+
+        if request.json.get('image_url1'):
+            photos = Photo_Comercial_Place(comercial_place_id = Place.id,
+                                           location   = request.json.get('image_url1'))
+            db.session.add(photos)
+
+        if request.json.get('image_url2'):
+            photos = Photo_Comercial_Place(comercial_place_id = Place.id,
+                                           location   = request.json.get('image_url2'))
+            db.session.add(photos)
+
+        db.session.commit();
 
         return jsonify({"msg": "Usuario creado correctamente"}), 200
 
@@ -397,6 +457,7 @@ def Comercial_Place_add():
 @jwt_required()
 def Comercial_Place_update(idLocal):
     userId = get_jwt_identity()
+
     try:
         place = Comercial_Place.query.get(idLocal)
         if place:
@@ -415,7 +476,21 @@ def Comercial_Place_update(idLocal):
             place.ascensor            = request.json.get('ascensor')
             place.productos_higiene   = request.json.get('productos_higiene')
 
+            db.session.commit();
+
+            if request.json.get('image_url1'):
+                place = Photo_Comercial_Place.query.get(idLocal)
+                photos = Photo_Comercial_Place(comercial_place_id = place.id,
+                                               location   = request.json['image_url1'])
+                db.session.add(photos)
+
+            if request.json.get('image_url2'):
+                photos = Photo_Comercial_Place(comercial_place_id = place.id,
+                                               location   = request.json['image_url2'])
+                db.session.add(photos)
+
             db.session.commit()
+
             return jsonify({"msg": "Local modificado correctamente"}), 200
         else:
             return jsonify({"msg": "No existen datos"}), 402
@@ -516,8 +591,8 @@ def Comments_user_add(id_comment):
 # Favoritos 
 # ----------------------------------------------------------------------------
 
-@api.route('/deletefavourit/<id>', methods=['DELETE'])
-@jwt_required()
+@api.route('/deletefavourit/<int:id>', methods=['DELETE'])
+# @jwt_required()
 def delete_Favourit(id):
     try:
         favourit = Favourit.query.filter_by(id=id).first()

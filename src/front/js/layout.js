@@ -5,7 +5,6 @@ import ScrollToTop from "./component/scrollToTop";
 import { Home } from "./pages/home";
 import { About } from "./pages/about";
 import { Contact } from "./pages/contact";
-import { Account } from "./pages/account";
 import { Data } from "./pages/data";
 import { Favorites } from "./pages/favorites";
 import { Comments } from "./pages/comments";
@@ -24,6 +23,10 @@ import { MisLocales } from "./pages/misLocales";
 import { DatosLocal } from "./pages/datosLocal";
 import { NuevoLocal } from "./pages/nuevoLocal";
 import { Comentarios } from "./pages/comentarios";
+import { Avisolegal } from "./pages/avisolegal";
+import { Politicaprivacidad } from "./pages/politicaprivacidad";
+import { Faqs} from "./pages/faqs";
+import { Terminosdeuso } from "./pages/terminosdeuso";
 
 //create your first component
 const Layout = () => {
@@ -45,7 +48,6 @@ const Layout = () => {
                         <Route element={<About />} path="/about" />
                         <Route element={<Contact />} path="/contact" />
                         <Route element={<Login />} path="/login" />
-                        <Route element={<Account />} path="/account" />
                         <Route element={<Data />} path="/data" />
                         <Route element={<Favorites/>} path="/favorites" />
                         <Route element={<Comments/>} path="/comments" />
@@ -57,6 +59,10 @@ const Layout = () => {
                         <Route element={<NuevoLocal />} path="/nuevoLocal" />
                         <Route element={<DatosLocal />} path="/datosLocal/:local_id" />
                         <Route element={<Comentarios />} path="/comentarios" />
+                        <Route element={<Avisolegal />} path="/avisolegal" />
+                        <Route element={<Politicaprivacidad />} path="/politicaprivacidad" />
+                        <Route element={<Terminosdeuso />} path="/terminosdeuso" />
+                        <Route element={<Faqs />} path="/faqs" />
                         <Route path="*" element={<div>Página no encontrada</div> } />
                     </Routes>
                     <Footer />
