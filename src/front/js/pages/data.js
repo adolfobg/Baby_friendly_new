@@ -3,7 +3,7 @@ import { Context } from "../store/appContext";
 
 export const Data = () => {
   const { store, actions } = useContext(Context);
-
+ 
   return (
     <>
       <div className="myDetails">
@@ -46,8 +46,8 @@ export const Data = () => {
                       <div className="valid-feedback">Campo Email es válido.</div>
                       <div className="invalid-feedback">Campo Email no puede estar en blanco.</div>
                     </div>
-
-                    <div className="d-flex justify-content-center ms-3 me-3 mt-2">
+                    {store.usertype == "customer" ?
+                      <div className="d-flex justify-content-center ms-3 me-3 mt-2">
                       <input  className="form-control p-2"
                               type="tel"
                               name="telefono"
@@ -55,7 +55,11 @@ export const Data = () => {
                               defaultValue={store.usuario?.telefono}
                       />
                       <div className="valid-feedback">Campo Teléfono es válido</div>
-                    </div>
+                      </div>
+                      :
+                      ""
+                    }
+                    {store.usertype == "customer" ?
                     <div className="d-flex justify-content-center ms-3 me-3 mt-2">
                       <input  className="form-control p-2"
                               type="date"
@@ -65,34 +69,47 @@ export const Data = () => {
                       />
                       <div className="valid-feedback">Campo birthday es válido</div>
                     </div>
+                      :
+                      ""
+                    }
+                    {store.usertype == "customer" ?
                     <div className="d-flex justify-content-center ms-3 me-3 mt-2">
                       <select className="form-select mt-3" name="gender">
-                        <option >----- Elige una opción -----</option>
+                        <option > Género</option>
                         <option value="female">Femenino</option>
                         <option value="male">Masculino</option>
                       </select>
 
                       <div className="valid-feedback">Campo gender es válido</div>
                     </div>
+                      :
+                      ""
+                    }
+                    {store.usertype == "customer" ?
                     <div className="d-flex justify-content-center ms-3 me-3 mt-2">
-                      <input  className="form-control p-2"
-                              type="text"
-                              name="subscription"
-                              placeholder="subscription"
-                              required
-                              defaultValue={store.usuario?.subscription}
-                      />
+                    <select className="form-select mt-3" name="gender">
+                        <option >Suscripción a la newsletter</option>
+                        <option value="female">Sí</option>
+                        <option value="male">No</option>
+                      </select>
                       <div className="valid-feedback">Campo subscription es válido</div>
                     </div>
+                      :
+                      ""
+                    }
+                    {store.usertype == "customer" ?
                     <div className="d-flex justify-content-center ms-3 me-3 mt-2">
                       <input  className="form-control p-2"
                               type="text"
                               name="address"
-                              placeholder="address"
+                              placeholder="Dirección"
                               defaultValue={store.usuario?.address}
                       />
                       <div className="valid-feedback">Campo address es válido</div>
                     </div>
+                      :
+                      ""
+                    }
 
                     <div className="d-flex justify-content-center ms-3 me-3 mt-2">
                       <input
@@ -128,7 +145,7 @@ export const Data = () => {
                       </div>
                     </div>
                     <div className="py-3 px-0 mx-0 d-flex justify-content-around">
-                      <button id="button" type="submit" className="mb-3 col-md-10 btn-lg px-5 mb-3 mt-3">
+                      <button id="button" type="submit" className="btn btn-primary px-5 mb-3 mt-3">
                         Guardar cambios
                       </button>
                     </div>

@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import "../../styles/home.css";
 import CustomModal from "../component/customModal";
 import { useModal } from "../hooks/UseModal";
+import emailjs from '@emailjs/browser';
+
 
 const Login = () => {
   const { store, actions } = useContext(Context);
@@ -56,13 +58,27 @@ const Login = () => {
         datosCustomer(store.user.id).then((resp) => {
             console.log("Customer:", resp);
             if (!(resp.name) || !(resp.birthday) || !(resp.gender) || !(resp.address) || !(resp.telefono))
-              navigate("/data");
+              navigate("/");
           }); 
       }
       navigate("/");
   };
 
-  return (
+  const submit = (e) => {
+    e.preventDefault();
+    emailjs.sendForm(process.env.EMAIL_SERVICE_ID, process.env.EMAIL_TEMPLATE_ID, form.current, process.env.EMAIL_PUBLIC_KEY)
+    .then((result) => {
+        setMensaje("Correo enviado satisfactoriamente");
+        toggleModal();
+    }, (error) => {
+        setMensaje(error.text)
+        return false;
+    });
+
+    return true;
+  };
+
+   return (
     <div className="vh-100 gradient-custom">
       <div className="container text-center">
         <h1>¡Hola de nuevo!</h1>

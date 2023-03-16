@@ -17,8 +17,8 @@ api = Blueprint('api', __name__)
 # ----------------------------------------------------------------------------
 @api.route('/Customer', methods=['GET'])
 def list_customers():
-    Customers = Customer.query.all()
-    data = [Customer.serialize() for Customers in Customer]
+    customers = Customer.query.all()
+    data = [customer.serialize() for customer in customers]
     return jsonify(data), 200
 
 # ----------------------------------------------------------------------------
@@ -68,7 +68,6 @@ def list_Comercial_Places():
                     Comercial_Place.id==q.c.comercial_place_id).all()
         total = 0
         count = 0
-
         for data in result:
             total += data[1] * (int(data[2]) / 100) if data[2] and data[1] else 0
             count += data[1] if data[1] else 0
@@ -77,11 +76,10 @@ def list_Comercial_Places():
         count = count if count > 0 else 1
         info['raking'] = int(total * 100 / count)
         comercials.append(info)
-
     if customer:
         favourits = Favourit.query.filter_by(customer_id=customer.id)
         favorits_id = [favorit.comercial_place_id for favorit in favourits]
-
+        
     for element in comercials:
         if element['id'] in favorits_id:
             element['favorite'] = True 
@@ -118,28 +116,28 @@ def list_Comercial_Places_home():
         favourits = Favourit.query.filter_by(customer_id=customer.id)
         favorits_id = [favorit.comercial_place_id for favorit in favourits]
 
+    result = []
     for element in comercials:
+        print(element['id'] in favorits_id)
         if element['id'] in favorits_id:
             element['favorite'] = True 
         else:
             element['favorite'] = False 
-    
-    print(comercials)
-
-    return jsonify(comercials), 200
+        result.append(element)
+    return jsonify(result), 200
 
 # ----------------------------------------------------------------------------
 # Búsqueda de Locales
 # ----------------------------------------------------------------------------
-@api.route('/comercial-place-search/<buscar>', methods=['GET'])
+@api.route('/comercial-place-search/<buscar>/', methods=['GET'])
 @jwt_required(optional = True)
 def list_Comercial_Places_search(buscar):
     favorits_id = []
     user_id = get_jwt_identity()
     customer = Customer.query.filter_by(user_id=user_id).first() if user_id else None
 
-    comercial_places = Comercial_Place.query.filter(Comercial_Place.name.contains(buscar)).all()
-
+    comercial_places = Comercial_Place.query.filter(func.lower(Comercial_Place.name) == func.lower(buscar)).all()
+    
     comercials = []
     for comercial in comercial_places:
         q = db.session.query(Rate_Customer.comercial_place_id, Rate_Customer.rate, func.count('*').label('total_count')).filter_by(comercial_place_id=comercial.id).group_by(Rate_Customer.comercial_place_id,  Rate_Customer.rate).subquery()
@@ -160,13 +158,16 @@ def list_Comercial_Places_search(buscar):
         favourits = Favourit.query.filter_by(customer_id=customer.id)
         favorits_id = [favorit.comercial_place_id for favorit in favourits]
 
+    result = []
     for element in comercials:
+        print(element['id'] in favorits_id)
         if element['id'] in favorits_id:
             element['favorite'] = True 
         else:
             element['favorite'] = False 
+        result.append(element)
 
-    return jsonify(comercials), 200
+    return jsonify(result), 200
 
 # ----------------------------------------------------------------------------
 # Locales de un Manager
@@ -237,12 +238,10 @@ def Comercial_Places_2(comercial_place_id):
     count = 0
     for data in result:
         total += data[1] * (int(data[2]) / 100) if data[2] and data[1] else 0
-        print(data[1])
         count += data[1] if data[1] else 0
     
     comercial = data[0].serialize()
     count = count if count > 0 else 1
-    print(count)
     comercial['raking'] = int(total * 100 / count) 
 
     if comercial_places:
@@ -264,7 +263,7 @@ def get_photos_comercial_place(id):
 # ----------------------------------------------------------------------------
 @api.route('/comment', methods=['GET'])
 def list_Comments():
-    datos = Comment.query.order_by(Comment.id.desc()).limit(4).all()
+    datos = Comment.query.order_by(Comment.id.desc()).limit(3).all()
     data = [comentario.serialize() for comentario in datos]
     return jsonify(data), 200
 
@@ -592,11 +591,10 @@ def Comments_user_add(id_comment):
 # ----------------------------------------------------------------------------
 
 @api.route('/deletefavourit/<int:id>', methods=['DELETE'])
-# @jwt_required()
+@jwt_required()
 def delete_Favourit(id):
     try:
         favourit = Favourit.query.filter_by(id=id).first()
-        print(favourit)
         db.session.delete(favourit)
         db.session.commit()
     except Exception as e:
@@ -662,3 +660,113 @@ def Comments_delete(id):
     db.session.delete(Comment)
     db.session.commit()
 '''
+# ----------------------------------------------------------------------------
+# Lista de Locales ultimos añadidos
+# ----------------------------------------------------------------------------
+@api.route('/last-comercial-place', methods=['GET'])
+@jwt_required(optional = True)
+def list_Last_Comercial_Places():
+    favorits_id = []
+    user_id = get_jwt_identity()
+    customer = Customer.query.filter_by(user_id=user_id).first() if user_id else None
+
+    comercial_places = Comercial_Place.query.order_by(Comercial_Place.id.desc()).limit(4).all()
+
+    comercials = []
+    for comercial in comercial_places:
+        q = db.session.query(
+            Rate_Customer.comercial_place_id, 
+            Rate_Customer.rate, 
+            func.count(
+                '*').label(
+                'total_count')).filter_by(
+                comercial_place_id=comercial.id).group_by(
+                    Rate_Customer.comercial_place_id,  
+                    Rate_Customer.rate).subquery()
+        result = db.session.query(
+            Comercial_Place, q.c.total_count, q.c.rate).filter_by(
+                id=comercial.id).outerjoin(
+                    q, 
+                    Comercial_Place.id==q.c.comercial_place_id).all()
+        total = 0
+        count = 0
+
+        for data in result:
+            total += data[1] * (int(data[2]) / 100) if data[2] and data[1] else 0
+            count += data[1] if data[1] else 0
+        
+        info = data[0].serialize()
+        count = count if count > 0 else 1
+        info['raking'] = int(total * 100 / count)
+        comercials.append(info)
+
+    if customer:
+        favourits = Favourit.query.filter_by(customer_id=customer.id)
+        favorits_id = [favorit.comercial_place_id for favorit in favourits]
+
+    result = []
+    for element in comercials:
+        print(element['id'] in favorits_id)
+        if element['id'] in favorits_id:
+            element['favorite'] = True 
+        else:
+            element['favorite'] = False 
+        result.append(element)
+
+    return jsonify(result), 200
+
+# ----------------------------------------------------------------------------
+# Lista de Locales Random
+# ----------------------------------------------------------------------------
+@api.route('/random-comercial-place', methods=['GET'])
+@jwt_required(optional = True)
+def list_Random_Comercial_Places():
+    favorits_id = []
+    user_id = get_jwt_identity()
+    customer = Customer.query.filter_by(user_id=user_id).first() if user_id else None
+
+    comercial_places = Comercial_Place.query.order_by(func.random()).limit(4).all()
+
+    comercials = []
+    for comercial in comercial_places:
+        q = db.session.query(
+            Rate_Customer.comercial_place_id, 
+            Rate_Customer.rate, 
+            func.count(
+                '*').label(
+                'total_count')).filter_by(
+                comercial_place_id=comercial.id).group_by(
+                    Rate_Customer.comercial_place_id,  
+                    Rate_Customer.rate).subquery()
+        result = db.session.query(
+            Comercial_Place, q.c.total_count, q.c.rate).filter_by(
+                id=comercial.id).outerjoin(
+                    q, 
+                    Comercial_Place.id==q.c.comercial_place_id).all()
+        total = 0
+        count = 0
+
+        for data in result:
+            total += data[1] * (int(data[2]) / 100) if data[2] and data[1] else 0
+            count += data[1] if data[1] else 0
+        
+        info = data[0].serialize()
+        count = count if count > 0 else 1
+        info['raking'] = int(total * 100 / count)
+        comercials.append(info)
+
+    if customer:
+        favourits = Favourit.query.filter_by(customer_id=customer.id)
+        favorits_id = [favorit.comercial_place_id for favorit in favourits]
+
+    
+    result = []
+    for element in comercials:
+        print(element['id'] in favorits_id)
+        if element['id'] in favorits_id:
+            element['favorite'] = True 
+        else:
+            element['favorite'] = False 
+        result.append(element) 
+
+    return jsonify(result), 200
